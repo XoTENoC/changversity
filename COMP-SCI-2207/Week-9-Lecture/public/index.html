@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>WDC Overflow</title>
+        <link rel="stylesheet" href="stylesheets/style.css" >
+        <script src="https://accounts.google.com/gsi/client" async defer></script>
+        <script src="javascripts/page.js"></script>
+    </head>
+    <body onload="getPost()">
+        <header>
+            <button type="button">Signup</button>
+            <button type="button">Login</button>
+            <button type="button" onclick="logout();">Logout</button>
+            <img class="logo" src="images/logo.png" alt="WDC Overflow" />
+            <ul>
+                <li>Products</li>
+                <li>Customers</li>
+                <li>Use Cases</li>
+            </ul>
+        </header>
+        <section id="login-form">
+            <form>
+                <label for="login-user">Username</label><input type="text" id="login-user" /><br />
+                <label for="login-pass">Password</label><input type="password" id="login-pass" />
+                <button type="button" onclick="login();">Login</button>
+            </form>
+
+            <!-- 
+                The Google Sign-in Button below signs the user in, then sends the login data by by calling our handler callback. 
+                The do_google_login function (or whatever data-callback is specified below) is called with the login data passed as a parameter.
+                See the client code route for do_google_login
+            -->
+
+            <div id="g_id_onload"
+                data-client_id="MY-CLIENT-ID.apps.googleusercontent.com"
+                data-context="signin"
+                data-ux_mode="popup"
+                data-callback="do_google_login"
+                data-auto_prompt="false">
+            </div>
+
+            <div class="g_id_signin"
+                data-type="standard"
+                data-shape="rectangular"
+                data-theme="filled_black"
+                data-text="signin_with"
+                data-size="medium"
+                data-logo_alignment="left">
+            </div>
+
+            <!-- 
+                The Google Sign-in Button below signs the user in, then sends the login data by redirecting the client window. 
+                The client is redirected to make a POST request to http://localhost:8080/google_login (or whatever data-login_uri is listed below)
+                See the server route for /google_login
+            -->
+
+            <!-- <div id="g_id_onload"
+                data-client_id="MY-CLIENT-ID.apps.googleusercontent.com"
+                data-context="signin"
+                data-ux_mode="popup"
+                data-login_uri="http://localhost:8080/google_login"
+                data-auto_prompt="false">
+            </div>
+
+            <div class="g_id_signin"
+                data-type="standard"
+                data-shape="rectangular"
+                data-theme="filled_blue"
+                data-text="signin_with"
+                data-size="medium"
+                data-logo_alignment="left">
+            </div> -->
+
+        </section>
+        <section id="signup-form">
+            <form>
+                <label for="signup-user">Username</label><input type="text" id="signup-user" /><br />
+                <label for="signup-pass">Password</label><input type="password" id="signup-pass" /><br />
+                <label for="signup-pass">Confirm</label><input type="password" id="signup-confirm" />
+                <button type="button" onclick="signup();">Sign Up</button>
+            </form>
+        </section>
+        <main>
+
+            <div class="search">
+                <button type="button" class="right">Ask Question</button>
+                <h2>Search Results</h2>
+                <button type="button" class="right">Search</button>
+                <input type="text" name="search" />
+            </div>
+
+
+
+
+        </main>
+        <section>
+            <h2>Ask a Question</h2>
+            <input id="post-title" type="text" placeholder="Title" /><br />
+            <textarea id="post-content" placeholder="Details..." ></textarea><br />
+            <input id="post-tags" type="text"  placeholder="Tags" /><br />
+            <button type="button" onclick="newPost();">Create Post</button>
+        </section>
+        <footer>
+            <h4>This is a footer</h4>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur maximus, lorem non varius consequat, ipsum magna vestibulum lectus, et fringilla tellus augue id nisl. Donec tempus est a hendrerit ornare. Phasellus blandit est in malesuada interdum. Mauris finibus vehicula turpis vel lobortis. Phasellus tempor elit massa. Morbi vulputate leo a neque mollis varius. Donec ultricies aliquam vulputate. Nunc dapibus lectus a risus rutrum pulvinar. </p>
+        </footer>
+    </body>
+</html>
