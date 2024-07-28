@@ -14,7 +14,12 @@ public class CalculatorClient {
                 Registry registry = LocateRegistry.getRegistry(HOST, PORT_NUMBER);
                 Calculator calculator = (Calculator) registry.lookup("calculatorServer");
 
-                System.out.print("This is the class that was found: " + calculator.isEmpty());
+                calculator.pushValue(30);
+                calculator.pushValue(35);
+
+                calculator.pushOperation("gcd");
+
+                System.out.println("Output value: " + calculator.pop());
 
             } catch (Exception error) {
 
