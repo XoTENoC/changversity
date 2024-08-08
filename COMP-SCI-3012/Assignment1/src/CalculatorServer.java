@@ -15,10 +15,6 @@ public class CalculatorServer {
             registry.rebind("calculatorServer", calculator);
             System.out.println("Server ready");
 
-            synchronized (CalculatorServer.class) {
-                CalculatorServer.class.wait();
-            }
-
         } catch (RemoteException error) {
 
             System.err.println("RemoteException: " + error);

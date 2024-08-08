@@ -1,7 +1,7 @@
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
-public class CalculatorClient {
+public class CalculatorClient2 {
     public static void main(String[] args) {
         String HOST = "localhost";
         int PORT_NUMBER = 1098;
@@ -19,7 +19,7 @@ public class CalculatorClient {
                 calculator.pushValue(35);
                 Thread.sleep(1000);
 
-                calculator.pushOperation("min");
+                calculator.pushOperation("max");
 
                 System.out.println("Output value: " + calculator.pop());
 
