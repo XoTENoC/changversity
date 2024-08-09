@@ -4,6 +4,8 @@ import java.rmi.registry.Registry;
 
 public class CalculatorServer {
 
+    /*  Setting up the main functions for the server, assigning the Calculator implementation and creating the
+        server. Port of the server is also assigned in the PORT_NUMBER variable*/
     public static void main(String[] args) {
         try {
 

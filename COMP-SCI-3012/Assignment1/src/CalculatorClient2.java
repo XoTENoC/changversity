@@ -2,6 +2,9 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
 public class CalculatorClient2 {
+    /*  Main function for the second client. This Creates a new client, connects to the server pushes a couple of
+        values, and an operator, and returns the operator. This Class will also reattempt to connect to the server 3
+        Times */
     public static void main(String[] args) {
         String HOST = "localhost";
         int PORT_NUMBER = 1098;
