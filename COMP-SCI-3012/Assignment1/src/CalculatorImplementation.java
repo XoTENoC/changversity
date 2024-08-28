@@ -15,7 +15,7 @@ public class CalculatorImplementation extends UnicastRemoteObject implements Cal
     /*  Implementing Multi stack based on the threadID.
         Function returns the stack the is associated with the client */
     public Stack<Integer> getClientStack() {
-        Long clientID = Thread.currentThread().threadId();
+        Long clientID = Thread.currentThread().getId();
         return clientStacks.computeIfAbsent(clientID, k -> new Stack<>());
     }
 
@@ -58,12 +58,22 @@ public class CalculatorImplementation extends UnicastRemoteObject implements Cal
         };
 
         switch (Operator) {
-            case "min" -> calculatorResult = Math.min(value1, value2);
-            case "max" -> calculatorResult = Math.max(value1, value2);
-            case "gcd" -> calculatorResult = gcd.apply(value1, value2);
-            case "lcm" -> calculatorResult = lcm.apply(value1, value2);
-            default -> calculatorResult = 0;
-        };
+            case "min":
+                calculatorResult = Math.min(value1, value2);
+                break;
+            case "max":
+                calculatorResult = Math.max(value1, value2);
+                break;
+            case "gcd":
+                calculatorResult = gcd.apply(value1, value2);
+                break;
+            case "lcm":
+                calculatorResult = lcm.apply(value1, value2);
+                break;
+            default:
+                calculatorResult = 0;
+                break;
+        }
 
         pushValue(calculatorResult);
     }
