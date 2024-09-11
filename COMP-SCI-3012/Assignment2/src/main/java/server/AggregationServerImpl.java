@@ -58,7 +58,7 @@ public class AggregationServerImpl implements AggregationServer {
     }
 
     /**
-     * Getting handling all the requests in the order then they are coming in.
+     * Handling all the requests in the order then they are coming in.
      */
     public void handleHttpRequest() throws IOException {
         // As first line has request type store that.
