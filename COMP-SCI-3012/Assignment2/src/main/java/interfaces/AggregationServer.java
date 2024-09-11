@@ -15,5 +15,5 @@ public interface AggregationServer {
 
     void expungeExpiredData();
 
-    void stopServer();
+    void stopServer() throws IOException;
 }

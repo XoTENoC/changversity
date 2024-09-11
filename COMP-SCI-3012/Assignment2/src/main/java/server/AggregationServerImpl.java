@@ -22,7 +22,7 @@ public class AggregationServerImpl implements AggregationServer {
     private BufferedReader in;
     private final Gson gson;
 
-    private LamportClock clock;
+    private final LamportClock clock;
 
     private final PriorityQueue<ClientRequest> requestQueue;
 
@@ -59,7 +59,6 @@ public class AggregationServerImpl implements AggregationServer {
 
     /**
      * Getting handling all the requests in the order then they are coming in.
-     * @throws IOException
      */
     public void handleHttpRequest() throws IOException {
         // As first line has request type store that.
@@ -71,6 +70,7 @@ public class AggregationServerImpl implements AggregationServer {
 
             // Ignore all lines until the Content-Length or Clock.
             while (!(line = in.readLine()).isEmpty()) {
+                System.out.println("http handle: " + line);
                 if (line.startsWith("Clock:")) {
                     clientLamportClock = Integer.parseInt(line.substring("Clock:".length()).trim());
                     break;
@@ -97,7 +97,8 @@ public class AggregationServerImpl implements AggregationServer {
                 String line;
                 String StationID = "";
 
-                while (!(line = dataStream.readLine()).isEmpty()) {
+                while ((line = dataStream.readLine()) != null && !line.isEmpty()) {
+                    System.out.println(line);
                     if (line.startsWith("StationID:")) {
                         StationID = line.substring("StationID:".length()).trim();
                     }
@@ -116,7 +117,7 @@ public class AggregationServerImpl implements AggregationServer {
                 request.getOut().println("HTTP/1.1 200 OK");
                 request.getOut().println("Content-Type: application/json");
                 request.getOut().println("Clock: " + clock.getTime());
-                request.getOut().println("Content-Length: " + dummyData.length());
+                request.getOut().println("Content-Length: " + DataBody.length());
                 request.getOut().println();
                 request.getOut().println(DataBody);
 
@@ -143,7 +144,7 @@ public class AggregationServerImpl implements AggregationServer {
 
                 switch (returnCode) {
                     case -1:
-                        request.getOut().println("HTTP/1.1 500 internal server error");
+                        request.getOut().println("HTTP/1.1 500 INTERNAL SERVER ERROR");
                         break;
                     case 0:
                         request.getOut().println("HTTP/1.1 204 NO CONTENT");
@@ -156,7 +157,6 @@ public class AggregationServerImpl implements AggregationServer {
                         break;
                 }
 
-                request.getOut().println("HTTP/1.1 200 OK");
                 request.getOut().println("Clock: " + clock.getTime());
 
                 request.getClientSocket().close();
@@ -186,8 +186,6 @@ public class AggregationServerImpl implements AggregationServer {
         try {
             JsonObject weatherData = gson.fromJson(jsonData, JsonObject.class);
             String stationId = weatherData.get("id").getAsString();
-
-            System.out.println(stationId);
 
             if (!weatherDataStore.containsKey(stationId)) {
                 weatherDataStore.put(stationId, jsonData);
@@ -239,10 +237,13 @@ public class AggregationServerImpl implements AggregationServer {
      * Stops the aggregation server.
      */
     @Override
-    public void stopServer() {
-
+    public void stopServer() throws IOException {
+        serverSocket.close();
     }
 
+    /**
+     * main Starting the server on port 4567 as specified in the assignment documentation
+     */
     public static void main(String[] args) {
         try {
             AggregationServer server = new AggregationServerImpl(4567);
