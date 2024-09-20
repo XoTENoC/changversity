@@ -13,6 +13,8 @@ public class ContentServerImpl implements ContentServer {
 
     private final LamportClock clock;
 
+    private final File dataFile = new File("weather_data_content.json");
+
     public ContentServerImpl(String serverHost, int serverPort) {
         this.serverHost = serverHost;
         this.serverPort = serverPort;
@@ -30,11 +32,7 @@ public class ContentServerImpl implements ContentServer {
 
             String weatherData = getWeatherData();
 
-            String request = "PUT / HTTP/1.1\r\n" +
-                    "Clock: " + clock.getTime() + "\r\n" +
-                    "Content-Length: " + weatherData.length() + "\r\n" +
-                    "\r\n" +
-                    weatherData;
+            String request = buildRequest(weatherData);
 
             out.print(request);
             out.flush();
@@ -53,15 +51,39 @@ public class ContentServerImpl implements ContentServer {
             }
 
         } catch (IOException e) {
-            System.err.println("Error: Unable to connect to the server.");
+            System.err.println("Can't connect to server");
             e.printStackTrace();
         }
     }
 
     @Override
     public String getWeatherData() {
-        String weatherData = "{\"id\" : \"IDS60901\", \"name\" : \"Adelaide (West Terrace /  ngayirdapira)\", \"state\" : \"SA\", \"time_zone\" : \"CST\", \"lat\": -34.9, \"lon\": 138.6, \"local_date_time\": \"15/04:00pm\", \"local_date_time_full\": \"20230715160000\", \"air_temp\": 13.3, \"apparent_t\": 9.5, \"cloud\": \"Partly cloudy\", \"dewpt\": 5.7, \"press\": 1023.9, \"rel_hum\": 60, \"wind_dir\": \"S\", \"wind_spd_kmh\": 15, \"wind_spd_kt\": 8}";
-        return weatherData;
+        if (dataFile.exists()) {
+            try (FileReader reader = new FileReader(dataFile); BufferedReader br = new BufferedReader(reader)) {
+                StringBuilder jsonContent = new StringBuilder();
+                String line;
+                while ((line = br.readLine()) != null) {
+                    jsonContent.append(line);
+                }
+                String weatherData = jsonContent.toString();
+
+                System.out.println("JSON Content: " + weatherData);
+
+                return weatherData;
+            } catch (IOException e) {
+                System.err.println("Error loading data: " + e.getMessage());
+            }
+        }
+
+        return "";
+    }
+
+    public String buildRequest(String data) {
+        return "PUT / HTTP/1.1\r\n" +
+                "Clock: " + clock.getTime() + "\r\n" +
+                "Content-Length: " + data.length() + "\r\n" +
+                "\r\n" +
+                data;
     }
 
     public static void main(String[] args) {

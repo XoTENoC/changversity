@@ -38,3 +38,14 @@ At this point in time the bonus marks for the assignment haven't been implemente
   - json-2.11.0.jar
 
 The other dependency is jUnit but the make file will install and pull the correct files to run all the test.
+
+## Run Steps
+
+The following is how to run the code within this assignment
+
+
+
+## Testing Challenges
+
+Throughout this assignment the hardest part was coming up with a good way to test the server. Testing the functions that return the data to the socket was simple as we are able to just assert that it is returning a string but making sure that the socket it sending the correct data is harder.
+

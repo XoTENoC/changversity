@@ -15,6 +15,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import main.java.utils.LamportClock;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 public class AggregationServerImpl implements AggregationServer {
     private final ServerSocket serverSocket;
     private Socket clientSocket;
@@ -26,9 +30,11 @@ public class AggregationServerImpl implements AggregationServer {
 
     private final PriorityQueue<ClientRequest> requestQueue;
 
-    private final Map<String, String> weatherDataStore = new HashMap<>();
+    private final Map<String, WeatherData> weatherDataStore = new HashMap<>();
 
     private final File dataFile = new File("weather_data.json");
+
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     public AggregationServerImpl(int port) throws IOException {
         serverSocket = new ServerSocket(port);
@@ -38,6 +44,8 @@ public class AggregationServerImpl implements AggregationServer {
         requestQueue = new PriorityQueue<>(Comparator.comparingInt(ClientRequest::getLamportClock));
 
         loadDataFromFile();
+
+        scheduler.scheduleAtFixedRate(this::expungeExpiredData, 10, 10, TimeUnit.SECONDS);
     }
 
     /**
@@ -170,7 +178,8 @@ public class AggregationServerImpl implements AggregationServer {
      */
     @Override
     public String handleGetRequest(String stationId) {
-        return weatherDataStore.getOrDefault(stationId, "");
+        WeatherData weatherData = weatherDataStore.get(stationId);
+        return weatherData != null ? weatherData.getData() : null;
     }
 
     /**
@@ -186,13 +195,16 @@ public class AggregationServerImpl implements AggregationServer {
         try {
             JsonObject weatherData = gson.fromJson(jsonData, JsonObject.class);
             String stationId = weatherData.get("id").getAsString();
+            long timestamp = System.currentTimeMillis();
 
             if (!weatherDataStore.containsKey(stationId)) {
-                weatherDataStore.put(stationId, jsonData);
+                weatherDataStore.put(stationId, new WeatherData(jsonData, timestamp));
                 saveDataToFile();
                 return 1;
             } else {
-                weatherDataStore.put(stationId, jsonData);
+                WeatherData existingData = weatherDataStore.get(stationId);
+                existingData.setData(jsonData);
+                existingData.setModified(timestamp);
                 saveDataToFile();
                 return 2;
             }
@@ -218,7 +230,10 @@ public class AggregationServerImpl implements AggregationServer {
     private void loadDataFromFile() {
         if (dataFile.exists()) {
             try (FileReader reader = new FileReader(dataFile)) {
-                weatherDataStore.putAll(gson.fromJson(reader, new TypeToken<Map<String, String>>() {}.getType()));
+                Map<String, WeatherData> loadedData = gson.fromJson(reader, new TypeToken<Map<String, WeatherData>>() {}.getType());
+                if (loadedData != null) {
+                    weatherDataStore.putAll(loadedData);
+                }
             } catch (IOException e) {
                 System.err.println("Error loading data: " + e.getMessage());
             }
@@ -230,7 +245,14 @@ public class AggregationServerImpl implements AggregationServer {
      */
     @Override
     public void expungeExpiredData() {
+        long currentTime = System.currentTimeMillis();
+        long expiationTime = 30 * 1000;
 
+        boolean dataRemoved = weatherDataStore.entrySet().removeIf(entry -> (currentTime - entry.getValue().getModified()) > expiationTime);
+
+        if (dataRemoved) {
+            saveDataToFile();
+        }
     }
 
     /**
@@ -238,7 +260,12 @@ public class AggregationServerImpl implements AggregationServer {
      */
     @Override
     public void stopServer() throws IOException {
-        serverSocket.close();
+        try {
+            serverSocket.close();
+            scheduler.shutdownNow();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -289,6 +316,35 @@ public class AggregationServerImpl implements AggregationServer {
 
         public Socket getClientSocket() {
             return clientSocket;
+        }
+    }
+
+    /**
+     * This Helper class is a interface to store the data.
+     */
+    private static class WeatherData {
+        private String data;
+        private long modified;
+
+        public WeatherData(String data, long modified) {
+            this.data = data;
+            this.modified = modified;
+        }
+
+        public String getData() {
+            return data;
+        }
+
+        public long getModified() {
+            return modified;
+        }
+
+        public void setData(String data) {
+            this.data = data;
+        }
+
+        public void setModified(long modified) {
+            this.modified = modified;
         }
     }
 }

@@ -31,12 +31,7 @@ public class GETClientImpl implements GETClient {
 
             clock.tick();
 
-            String request = "GET / HTTP/1.1\r\n" +
-                    "Clock: " + clock.getTime() + "\r\n" +
-                    "StationID: " + stationId + "\r\n" +
-                    "\r\n";
-
-            out.print(request);
+            out.print(buildMessage(stationId));
             out.flush();
 
             String responseLine;
@@ -71,6 +66,14 @@ public class GETClientImpl implements GETClient {
     public void displayWeatherData(String jsonData) {
         System.out.println("Weather data from server: ");
         System.out.println(jsonData);
+    }
+
+    @Override
+    public String buildMessage(String stationID) {
+        return "GET / HTTP/1.1\r\n" +
+                "Clock: " + clock.getTime() + "\r\n" +
+                "StationID: " + stationId + "\r\n" +
+                "\r\n";
     }
 
     public static void main(String[] args) {
