@@ -1,7 +1,5 @@
 package main.java.interfaces;
 
-import main.java.utils.LamportClock;
-
 import java.io.IOException;
 
 public interface AggregationServer {

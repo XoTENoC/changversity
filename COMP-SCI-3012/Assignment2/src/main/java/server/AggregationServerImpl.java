@@ -20,6 +20,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class AggregationServerImpl implements AggregationServer {
+
     private final ServerSocket serverSocket;
     private Socket clientSocket;
     private PrintWriter out;
@@ -36,6 +37,11 @@ public class AggregationServerImpl implements AggregationServer {
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
+    /**
+     * Constructor for creating an instances of the  Agg server.
+     * @param port Port in which server should be accessible on.
+     * @throws IOException
+     */
     public AggregationServerImpl(int port) throws IOException {
         serverSocket = new ServerSocket(port);
         gson = new Gson();
@@ -116,8 +122,8 @@ public class AggregationServerImpl implements AggregationServer {
 
                 String DataBody = handleGetRequest(StationID);
 
-                if (DataBody.isEmpty()) {
-                    request.getOut().println("HTTP/1.1 400 Bad Request");
+                if (DataBody == null || DataBody.isEmpty()) {
+                    request.getOut().println("HTTP/1.1 400 BAD REQUEST");
                     request.getClientSocket().close();
                     continue;
                 }

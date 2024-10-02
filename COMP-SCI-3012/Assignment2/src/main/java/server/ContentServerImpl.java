@@ -15,6 +15,11 @@ public class ContentServerImpl implements ContentServer {
 
     private final File dataFile = new File("weather_data_content.json");
 
+    /**
+     * Constructor of the Content server
+     * @param serverHost Host at which we are able to find the server
+     * @param serverPort Port in which we are able to access the server.
+     */
     public ContentServerImpl(String serverHost, int serverPort) {
         this.serverHost = serverHost;
         this.serverPort = serverPort;
@@ -22,6 +27,9 @@ public class ContentServerImpl implements ContentServer {
         clock = new LamportClock();
     }
 
+    /**
+     * Function to send the content to the agg server. using the build helper functions
+     */
     @Override
     public void setContent() {
         try (Socket socket = new Socket(serverHost, serverPort);
@@ -56,6 +64,11 @@ public class ContentServerImpl implements ContentServer {
         }
     }
 
+    /**
+     * Looking for a file that the content that the content server is going to be sending is located at. Converting
+     * that information to a string and return it.
+     * @return stringified content that can be sent to the agg server.
+     */
     @Override
     public String getWeatherData() {
         if (dataFile.exists()) {
@@ -78,6 +91,11 @@ public class ContentServerImpl implements ContentServer {
         return "";
     }
 
+    /**
+     * Building the HTTP request to be able to put the data on the agg server
+     * @param data that we want to send the agg server
+     * @return string format of the HTTP request that can be sent via the socket
+     */
     public String buildRequest(String data) {
         return "PUT / HTTP/1.1\r\n" +
                 "Clock: " + clock.getTime() + "\r\n" +
@@ -86,6 +104,10 @@ public class ContentServerImpl implements ContentServer {
                 data;
     }
 
+    /**
+     * Function to start and instance of the content server.
+     * @param args that are used to start the server if applicable
+     */
     public static void main(String[] args) {
         String serverHost = "localhost";
         int serverPort = 4567;

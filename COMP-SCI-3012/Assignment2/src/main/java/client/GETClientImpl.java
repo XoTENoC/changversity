@@ -15,6 +15,11 @@ public class GETClientImpl implements GETClient {
 
     private final LamportClock clock;
 
+    /**
+     * @param serverHost host that the server is located at
+     * @param serverPort port on which we are able to access the server
+     * @param stationId Stations ID that we want to get the information
+     */
     public GETClientImpl(String serverHost, int serverPort, String stationId) {
         this.serverHost = serverHost;
         this.serverPort = serverPort;
@@ -23,6 +28,9 @@ public class GETClientImpl implements GETClient {
         clock = new LamportClock();
     }
 
+    /**
+     * Creating, sending the pricing the request and its return.
+     */
     @Override
     public void getWeatherData() {
         try (Socket socket = new Socket(serverHost, serverPort);
@@ -62,12 +70,21 @@ public class GETClientImpl implements GETClient {
         }
     }
 
+    /**
+     * Printing the data that we are receiving from the agg server
+     * @param jsonData Data that is returned from the request
+     */
     @Override
     public void displayWeatherData(String jsonData) {
         System.out.println("Weather data from server: ");
         System.out.println(jsonData);
     }
 
+    /**
+     * Building the request that we are going to send to the server
+     * @param stationID station that we want to get the information about
+     * @return HTTP request in string format.
+     */
     @Override
     public String buildMessage(String stationID) {
         return "GET / HTTP/1.1\r\n" +
@@ -76,6 +93,10 @@ public class GETClientImpl implements GETClient {
                 "\r\n";
     }
 
+    /**
+     * Stating an instance of the server through the terminal.
+     * @param args input arguments if applicable.
+     */
     public static void main(String[] args) {
         String serverHost = "localhost";
         int serverPort = 4567;
